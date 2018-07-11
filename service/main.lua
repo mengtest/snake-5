@@ -10,8 +10,6 @@ local init_service = function()
         nodelay = true,
         pre_agent_num = gameconfig.pre_agent_num,
     })
-
-
 end
 
 skynet.start(function() 

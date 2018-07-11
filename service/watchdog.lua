@@ -7,7 +7,15 @@ local agents = {}
 local SOCKET = {}
 
 function SOCKET.open(fd, addr)
+    skynet.error("发现有客户端连接")
     skynet.call(gate, "lua", "accept", fd)
+
+    local a = get_agent()
+
+    skynet.call(a, "lua", "start", {
+        gate = gate,
+        clientfd = fd,
+        watchdog = skynet.self()})
 end
 
 function SOCKET.close(fd) 
@@ -27,6 +35,7 @@ end
 
 --没有将agent传递给gete时，gate会先将数据发给watchdog
 function SOCKET.data(fd, data)
+    skynet.error("watch dog 数据！")
     local a = get_agent()
 
     skynet.call(a, "lua", "start", {
@@ -86,5 +95,5 @@ skynet.start(function()
         end
     end)
 
-    gate = skynet.uniqueservice("gate")
+    gate = skynet.newservice("gate")
 end)
