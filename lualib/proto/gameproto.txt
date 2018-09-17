@@ -1,0 +1,58 @@
+.person {
+    name 0: string
+    id   1: integer
+}
+
+.c2s_login {        #请求登录
+
+}
+ 
+.s2c_login {        #登录回应    
+    retCode 0: integer
+
+    id      1: integer
+}
+
+.userInfo {         #玩家信息
+    name 0: string 
+    
+    id   1: integer
+}
+
+.c2s_match {        #请求匹配
+    
+}
+
+.s2c_match {        #匹配结果
+    retCode  0: integer
+
+    userList 1: *userInfo
+}
+
+.command {          #单个玩家命令
+    cmdType  0: integer
+    cmdValue 1: integer
+}
+
+.c2s_userop {       #玩家的一次操作，一个操作里面可能会包含有多个命令
+    userID      0: integer 
+    userCommand 1: *command
+}
+
+.s2c_turnop {       #一回合的玩家操作数据,必定包含有所有玩家的操作
+    index       0: integer
+    turnCmd     1: *userop
+}
+
+.s2c_gamestart {    #游戏开始
+
+}
+
+.pingAsk {          #ping测试请求
+    index 0: integer
+}
+
+.pingAck {          #ping测试回应
+    index 0: integer
+}
+

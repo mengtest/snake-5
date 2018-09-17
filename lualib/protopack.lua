@@ -1,25 +1,30 @@
 local sproto = require("sproto")
 local socket = require("skynet.socket")
+local msgdef = require("proto.msgdef")
 
 local M = {}
-local id_table = {
-    [100] = "person"
-}
 
-local f = assert(io.open("./proto.txt" , "rb"))
+local f = assert(io.open("./proto.proto.txt" , "rb"))
 local buffer = f:read("*a")
 f:close()
 local sp = sproto.parse(buffer)
 
+local findTable = nil
+
 function M.id_to_name(id)
-    return id_table[id]
+    if findTable == nil then 
+        for k,v in pairs(msgdef) do 
+            findTable[v] = k
+        end
+    end
+
+    return findTable[id]
 end
 
---压流 前四个字节为id
-function M.pack(id, tab)
-    local name = M.id_to_name(100)
 
-    local buf = sp:encode(name, tab)
+--压流 前四个字节为id
+function M.pack(id, msgName, tab)
+    local buf = sp:encode(msgName, tab)
     local len = string.len(buf)
     local pack_size = len + 4
 
@@ -39,10 +44,15 @@ function M.unpack(msg)
     return id, sp:decode(name, buf)
 end
 
---发送数据
-function M.send_data(fd, id, msg) 
-    local data = M.pack(id, msg)
-
+--[[
+    发送数据
+    fd : sockct fd
+    id : 协议号
+    msgName : 协议名称
+    msg : 协议内容
+--]]
+function M.send_data(fd, id, msgName, msg) 
+    local data = M.pack(id, msgName, msg)
     socket.write(fd, data)
 end
 

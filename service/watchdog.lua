@@ -2,6 +2,7 @@ local skynet = require("skynet")
 
 local gate = nil
 local agents = {}
+local playerid = 0
 
 --SOCKET--------------------------------
 local SOCKET = {}
@@ -60,7 +61,7 @@ local POOL = {}
 --预构造多个agent
 function create_agent_pool(conf)
     for i=1, conf.pre_agent_num do 
-        table.insert(POOL, skynet.newservice("agent"))
+        table.insert(POOL, skynet.newservice("agent", i))
     end
 end
 
@@ -69,7 +70,9 @@ function get_agent()
         return table.remove(POOL)
     end
 
-    return skynet.newservice("agent")
+    playerid = playerid + 1
+
+    return skynet.newservice("agent", playerid)
 end
 
 function close_agent(fd)
