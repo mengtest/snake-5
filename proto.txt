@@ -1,4 +1,0 @@
-.person {
-    name 0: string
-    id   1: integer
-}
