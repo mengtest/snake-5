@@ -27,6 +27,7 @@ function M:_initRoom(roomNum)
             id = i,
             agent = skynet.newservice("room", i, skynet.self()),
         }
+        skynet.call(roomInfo.agent, "lua", "start")
 
         self._roomList[i] = roomInfo
         table.insert(self._idleList, roomInfo)
@@ -34,27 +35,40 @@ function M:_initRoom(roomNum)
 end
 
 --玩家进入房间
-function M:_playerEnterRoom(player, room)
-    v.hallState = const.STATE_GAMING
+function M:_playerEnterRoom(player, room, msg)
+    player.hallState = const.STATE_GAMING
     player.room = room
 
     skynet.call(room.agent, "lua", "enter", player)
+
+    skynet.call(player.agent, "lua", "enterRoom", room.agent)
+    skynet.send(player.agent, "lua", "send", "s2c_match", msg)
 end
 
 --通知房间游戏开始
-function M:_gameStart(room)
+function M:_gameStart(room, playerList)
     skynet.call(room.agent, "lua", "gameStart")
+
+    for k,v in ipairs(playerList) do 
+        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {})
+    end
 end
 
 --匹配成功 安排进入房间
 function M:_playerMatchSuccess(arr)
+    skynet.error("匹配成功--------------")
     local idleRoom = table.remove(self._idleList) 
 
-    for k,v in ipairs(arr) do 
-        self:_playerEnterRoom(v, idleRoom)
+    local msg = { retCode = 0, userList = {} }
+    for k, v in ipairs(arr) do 
+        table.insert(msg.userList, {id = v.id})
     end
 
-    self:_gameStart(idleRoom)
+    for k,v in ipairs(arr) do 
+        self:_playerEnterRoom(v, idleRoom, msg)
+    end
+
+    self:_gameStart(idleRoom, arr)
 end
 
 --进入大厅
@@ -103,12 +117,12 @@ end
 
 --匹配，匹配成功之后立马进入房间
 function M:match(playerID)
-    local player = self._playerList[player.id]
+    local player = self._playerList[playerID]
 
     if player and player.hallState == const.STATE_FREE then 
         player.hallState = const.STATE_MATCH
 
-        self._match.match(palyer)
+        self._match:match(player)
     end
 end
 

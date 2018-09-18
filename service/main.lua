@@ -1,4 +1,5 @@
 local skynet = require("skynet")
+local skynet = require("skynet.manager")
 
 local gameconfig = require("gameconfig")
 
@@ -6,7 +7,8 @@ local init_service = function()
 
     local watchdog = skynet.uniqueservice("watchdog")
 
-    local watchdog = skynet.uniqueservice("hall")
+    local hall = skynet.uniqueservice(true, "hall")
+    skynet.call(hall, "lua", "start")
 
     local result = skynet.call(watchdog, "lua", "start", {
         port = gameconfig.server_port,

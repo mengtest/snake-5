@@ -3,8 +3,9 @@
 -- Date: 2018-09-17 13:55:10
 -- 房间
 
-local const = require("room.const")
+local const = require("const")
 local protopack = require("protopack")
+local skynet = require("skynet")
 
 local M = {}
 
@@ -41,7 +42,7 @@ function M:_sendCurTurnCommand()
 
     --每个人都会发一次
     for k, v in pairs(self._playerList) do
-        protopack.send_data(v.fd, "s2c_turnop", turnop)
+        skynet.send(v.agent, "lua", "send", "s2c_turnop", turnop)
     end
 end
 
@@ -58,7 +59,7 @@ function M:_overtimeIdle()
 end
 
 --玩家的一回合command命令
-function M:playercommand(playerid, cmd)
+function M:userop(playerid, cmd)
     if not self._playerList[player.id] then 
         return
     end
@@ -92,11 +93,11 @@ function M:gameStart()
     skynet.timeout(const.FIRST_TURN_DELAY, handler(self, self._overtimeFirstTurn))
 
     for k, v in pairs(self._playerList) do
-        protopack.send_data(v.fd, "s2c_gamestart", {})
+        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {})
     end
 end
 
-function M.new()
+function M.new(...)
     local o = {}
     M.__index = M
     setmetatable(o, M)

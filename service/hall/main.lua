@@ -4,10 +4,13 @@
 --
 require("common.init")
 local skynet = require("skynet")
+local skynet = require("skynet.manager")
 
 local CMD = {}
 
 function CMD.start()
+    skynet.name("hall", skynet.self())
+
     g_hall = require("hall").new(10)
 end
 
@@ -17,12 +20,13 @@ skynet.start(function()
         local f = CMD[cmd]
         if f then 
             skynet.ret(skynet.pack(f(...)))
+            return
         end
 
         f = g_hall[cmd]
         if f then 
             skynet.ret(skynet.pack(f(g_hall, ...)))
-            return 
+            return
         end
     end)
 end)

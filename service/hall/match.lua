@@ -14,8 +14,15 @@ end
 function M:match(player)
     table.insert(self._waitList, player)
 
-    if #self._waitList > 2 then
-        self._callBack({self._waitList[1], self._waitList[2]}) 
+    -- if #self._waitList > 2 then
+    --     self._callBack({self._waitList[1], self._waitList[2]}) 
+    -- end
+    
+    if #self._waitList >= 1 then
+
+        self._callBack({self._waitList[1]}) 
+
+        table.remove(self._waitList, 1)
     end
 end
 
@@ -28,11 +35,11 @@ function M:cancle(player)
     end
 end
 
-function M.new()
+function M.new(...)
     local o = {}
     M.__index = M
     setmetatable(o, M)
-    o:ctor()
+    o:ctor(...)
     return o
 end
 
