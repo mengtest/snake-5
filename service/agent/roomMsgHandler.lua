@@ -4,8 +4,12 @@
 local skynet = require("skynet")
 local M = {}
 
-function M:ctor()
+function M:ctor(send)
+	self._send = send
+
     g_eventMgr:addEventListener("c2s_userop", handler(self, self.on_c2s_userop), "room")
+
+    g_eventMgr:addEventListener("pingAsk", handler(self, self.on_pingAsk), "room")
 end
 
 function M:on_c2s_userop(msg)
@@ -14,6 +18,10 @@ function M:on_c2s_userop(msg)
     if not room then return end
 
     skynet.call(room, "lua", "userop", g_me:getID(), msg)
+end
+
+function M:on_pingAsk(msg) 
+	self._send("pingAck", msg)
 end
 
 function M.new(...)

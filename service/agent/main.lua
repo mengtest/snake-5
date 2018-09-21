@@ -24,7 +24,7 @@ function CMD.start(data)
 
     g_me = player.new(param)
     g_hallMsgHandler = hallMsgHandler.new()
-    g_roomMsgHandler = roomMsgHandler.new()
+    g_roomMsgHandler = roomMsgHandler.new(CMD.send)
 
     skynet.call(gate, "lua", "forward", clientfd)
     skynet.error("开启客户端监听", gate, param)
