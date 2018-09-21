@@ -1,7 +1,7 @@
 --
 -- Author: xingxingtie
 -- Date: 2018-09-17 13:40:32
--- 匹配规则
+-- 简单按人数匹配
 
 local M = {}
 
@@ -14,16 +14,15 @@ end
 function M:match(player)
     table.insert(self._waitList, player)
 
-    -- if #self._waitList > 2 then
-    --     self._callBack({self._waitList[1], self._waitList[2]}) 
-    -- end
-    
-    if #self._waitList >= 2 then
+    if #self._waitList >= 4 then
 
-        self._callBack({self._waitList[1], self._waitList[2]}) 
-
-        table.remove(self._waitList, 1)
-        table.remove(self._waitList, 1)
+        local userList = {}
+        for i=1, 4 do 
+            table.insert(userList, self._waitList[1])
+            table.remove(self._waitList, 1)            
+        end
+        
+        self._callBack(userList) 
     end
 end
 
