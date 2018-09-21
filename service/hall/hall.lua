@@ -48,10 +48,6 @@ end
 --通知房间游戏开始
 function M:_gameStart(room, playerList)
     skynet.call(room.agent, "lua", "gameStart")
-
-    for k,v in ipairs(playerList) do 
-        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {})
-    end
 end
 
 --匹配成功 安排进入房间

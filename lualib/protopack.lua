@@ -24,12 +24,6 @@ function M.id_to_name(id)
 end
 
 function M.name_to_id(name)
-
-    print("name is:", name)
-    for k,v in pairs(msgdef) do
-        print(k, v)
-    end
-
     return msgdef[name]
 end
 

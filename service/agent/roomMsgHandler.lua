@@ -11,9 +11,7 @@ end
 function M:on_c2s_userop(msg)
     local room = g_me:getRoom()
     
-    if not room then 
-        return
-    end
+    if not room then return end
 
     skynet.call(room, "lua", "userop", g_me:getID(), msg)
 end

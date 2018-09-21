@@ -18,27 +18,22 @@
 
 .s2c_match {        #匹配结果
     retCode  0: integer
-
     userList 1: *userInfo
 }
 
-.command {          #单个玩家命令
+.c2s_userop {       #玩家的单次操作
     cmdType  0: integer
     cmdValue 1: integer
-}
-
-.c2s_userop {       #玩家的一次操作，一个操作里面可能会包含有多个命令
-    userID      0: integer 
-    userCommand 1: *command
+    userID   2: integer
 }
 
 .s2c_turnop {       #一回合的玩家操作数据,必定包含有所有玩家的操作
-    index       0: integer
-    turnCmd     1: *c2s_userop
+    turnIndex       0: integer
+    turnCmd         1: *c2s_userop
 }
 
 .s2c_gamestart {    #游戏开始
-
+    turnCmd     1: s2c_turnop  #用来指导客户端第1回合的运行
 }
 
 .pingAsk {          #ping测试请求
