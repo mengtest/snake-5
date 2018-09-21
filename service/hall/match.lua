@@ -18,10 +18,11 @@ function M:match(player)
     --     self._callBack({self._waitList[1], self._waitList[2]}) 
     -- end
     
-    if #self._waitList >= 1 then
+    if #self._waitList >= 2 then
 
-        self._callBack({self._waitList[1]}) 
+        self._callBack({self._waitList[1], self._waitList[2]}) 
 
+        table.remove(self._waitList, 1)
         table.remove(self._waitList, 1)
     end
 end
