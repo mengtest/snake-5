@@ -33,7 +33,9 @@
 }
 
 .s2c_gamestart {    #游戏开始
-    turnCmd     1: s2c_turnop  #用来指导客户端第1回合的运行
+    turnTime 0: integer     #一回合的毫秒数 
+
+    turnCmd      1: s2c_turnop  #用来指导客户端第1回合的运行
 }
 
 .pingAsk {          #ping测试请求
