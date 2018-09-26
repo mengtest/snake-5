@@ -70,7 +70,6 @@ skynet.register_protocol {
     end,
 
     dispatch = function (_, _, name, tab)
-        print("分发消息", name)
         g_eventMgr:dispatchEvent(name, tab)
     end
 }

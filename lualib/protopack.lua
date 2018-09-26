@@ -1,15 +1,20 @@
 local sproto = require("sproto")
 local socket = require("skynet.socket")
-local msgdef = require("proto.msgdef")
 
 local M = {}
 
-local f = assert(io.open("./lualib/proto/gameproto.txt" , "rb"))
-local buffer = f:read("*a")
-f:close()
-local sp = sproto.parse(buffer)
-
 local findTable = nil
+local sp        = nil
+
+--初始化协议
+function M.init_proto(protoPath, msgIDs)
+    local f = assert(io.open(protoPath , "rb"))
+    local buffer = f:read("*a")
+    f:close()
+    sp = sproto.parse(buffer)
+
+    msgdef = msgIDs
+end
 
 function M.id_to_name(id)
     if findTable == nil then 
