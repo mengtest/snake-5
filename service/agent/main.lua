@@ -9,8 +9,6 @@ local msgdef = require("proto.msgdef")
 local hallMsgHandler = require("hallMsgHandler")
 local roomMsgHandler = require("roomMsgHandler")
 
-local param = ...
-
 local CMD = {}
 
 clientfd = nil
@@ -22,12 +20,12 @@ function CMD.start(data)
     gate = data.gate
     watchdog = data.watchdog
 
-    g_me = player.new(param)
+    g_me = player.new(data.id)
     g_hallMsgHandler = hallMsgHandler.new()
     g_roomMsgHandler = roomMsgHandler.new()
 
     skynet.call(gate, "lua", "forward", clientfd)
-    skynet.error("开启客户端监听", gate, param)
+    skynet.error("开启客户端监听", gate, data.id)
 
     print("发送消息登录消息")
     --登录成功

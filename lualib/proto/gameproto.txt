@@ -1,11 +1,13 @@
 .c2s_login {        #请求登录
-
+    account  0: string
+    password 1: string
 }
  
 .s2c_login {        #登录回应    
     retCode 0: integer
-
     id      1: integer
+    account 2: string
+    token   3: string
 }
 
 .userInfo {         #玩家信息    

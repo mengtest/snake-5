@@ -1,8 +1,25 @@
 local skynet = require("skynet")
+local protopack = require("protopack")
 
+local loginserver = nil
 local gate = nil
 local agents = {}
 local playerid = 0
+
+--验证----------------------------------
+local verify = function(fd, data)
+    local ret, id = skynet.call(loginserver, "lua", "verify", data, fd)
+
+    if ret then 
+        local a = get_agent()
+
+        skynet.call(a, "lua", "start", {
+            gate = gate,
+            clientfd = fd,
+            watchdog = skynet.self(),
+            id = id})
+    end
+end
 
 --SOCKET--------------------------------
 local SOCKET = {}
@@ -11,12 +28,12 @@ function SOCKET.open(fd, addr)
     skynet.error("发现有客户端连接")
     skynet.call(gate, "lua", "accept", fd)
 
-    local a = get_agent()
+    -- local a = get_agent()
 
-    skynet.call(a, "lua", "start", {
-        gate = gate,
-        clientfd = fd,
-        watchdog = skynet.self()})
+    -- skynet.call(a, "lua", "start", {
+    --     gate = gate,
+    --     clientfd = fd,
+    --     watchdog = skynet.self()})
 end
 
 function SOCKET.close(fd) 
@@ -37,18 +54,16 @@ end
 --没有将agent传递给gete时，gate会先将数据发给watchdog
 function SOCKET.data(fd, data)
     skynet.error("watch dog 数据！")
-    local a = get_agent()
 
-    skynet.call(a, "lua", "start", {
-        gate = gate,
-        clientfd = fd,
-        watchdog = skynet.self()})
+    skynet.fork(verify, fd, data)
 end
 --CMD-----------------------------------
 local CMD = {}
 
-function CMD.start(conf)
+function CMD.start(conf, _loginsever)
     create_agent_pool(conf)
+
+    loginserver = _loginsever
 
     skynet.call(gate, "lua", "open", conf)
 end
@@ -69,10 +84,8 @@ function get_agent()
     if #POOL > 0 then 
         return table.remove(POOL)
     end
-
-    playerid = playerid + 1
-
-    return skynet.newservice("agent", playerid)
+    
+    return skynet.newservice("agent")
 end
 
 function close_agent(fd)

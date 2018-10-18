@@ -4,6 +4,13 @@ local skynet = require("skynet.manager")
 local gameconfig = require("gameconfig")
 
 local init_service = function() 
+    --db server
+    local dbserver = skynet.uniqueservice("database")
+    skynet.call(dbserver, "lua", "start")
+
+    --login server
+    local loginserver = skynet.uniqueservice("login")
+    skynet.call(loginserver, "lua", "start")    
 
     local watchdog = skynet.uniqueservice("watchdog")
 
@@ -15,7 +22,8 @@ local init_service = function()
         maxclient = gameconfig.max_client,
         nodelay = true,
         pre_agent_num = gameconfig.pre_agent_num,
-    })
+    }, loginserver)
+
 end
 
 skynet.start(function() 
