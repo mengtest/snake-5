@@ -1,16 +1,10 @@
-local skynet = require("skynet")
-local skynet = require("skynet.manager")
+--中心服务器
+--游戏服务器会将自己的ip 和 游戏端口告知中心服务器，玩家开启游戏时会在中心服务器处拿到开服列表
 
+local skynet = require("skynet")
 local gameconfig = require("gameconfig")
 
 local init_service = function() 
-    --db server
-    local dbserver = skynet.uniqueservice("database")
-    skynet.call(dbserver, "lua", "start")
-
-    --login server
-    local loginserver = skynet.uniqueservice("login")
-    skynet.call(loginserver, "lua", "start")    
 
     local watchdog = skynet.uniqueservice("watchdog")
 
@@ -22,8 +16,7 @@ local init_service = function()
         maxclient = gameconfig.max_client,
         nodelay = true,
         pre_agent_num = gameconfig.pre_agent_num,
-    }, loginserver)
-
+    })
 end
 
 skynet.start(function() 

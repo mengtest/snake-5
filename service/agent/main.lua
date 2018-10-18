@@ -22,7 +22,7 @@ function CMD.start(data)
 
     g_me = player.new(data.id)
     g_hallMsgHandler = hallMsgHandler.new()
-    g_roomMsgHandler = roomMsgHandler.new()
+    g_roomMsgHandler = roomMsgHandler.new(CMD.send)
 
     skynet.call(gate, "lua", "forward", clientfd)
     skynet.error("开启客户端监听", gate, data.id)
@@ -68,7 +68,6 @@ skynet.register_protocol {
     end,
 
     dispatch = function (_, _, name, tab)
-        print("分发消息", name)
         g_eventMgr:dispatchEvent(name, tab)
     end
 }

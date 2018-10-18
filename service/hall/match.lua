@@ -14,10 +14,10 @@ end
 function M:match(player)
     table.insert(self._waitList, player)
 
-    if #self._waitList >= 4 then
+    if #self._waitList >= 1 then
 
         local userList = {}
-        for i=1, 4 do 
+        for i=1, 1 do 
             table.insert(userList, self._waitList[1])
             table.remove(self._waitList, 1)            
         end

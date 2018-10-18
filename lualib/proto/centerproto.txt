@@ -1,0 +1,20 @@
+.c2s_register {        #注册
+	port    0: integer
+}
+
+.s2c_register {
+	retCode 0: integer
+}
+
+.serverData {
+	ip   0 : string
+	port 1 : integer
+}
+
+.c2s_serverList {
+	
+}
+
+.s2c_serverList {
+	serverlist 0 : *serverData
+}

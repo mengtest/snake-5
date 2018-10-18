@@ -114,7 +114,9 @@ function M:gameStart()
     for k, v in pairs(self._playerList) do
         skynet.error("发送游戏开始命令")
         turnop.turnIndex = 1
-        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {turnCmd = turnop})
+        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {
+            turnCmd = turnop,
+            turnTime = const.FIRST_TURN_DELAY * 10})
     end
 end
 
