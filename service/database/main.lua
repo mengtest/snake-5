@@ -32,13 +32,14 @@ function CMD.query(sql)
     return dbtool.query(sql)
 end
 
-function CMD.getByKey(tablename, keyname, keyvalue)
-    return dbtool.getByKey(tablename, keyname, keyvalue)
+function CMD.select(tablename, keyname, keyvalue)
+    return dbtool.select(tablename, keyname, keyvalue)
 end
 
 function CMD.update(tableName, keyName, keyValue, fieldName, fieldValue)
     return dbtool.update(tableName, keyName, keyValue, fieldName, fieldValue)
 end
+
 
 skynet.start(function() 
     skynet.dispatch("lua", function(_, _, cmd, ...)

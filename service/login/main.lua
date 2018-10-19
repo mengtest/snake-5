@@ -13,21 +13,68 @@ function sendLoginInfo(fd, retcode, id, account, token)
         token   = token})
 end
 
+--发送数据到前端
+function sendRigsterInfo(fd, retcode)
+
+    skynet.error("注册结果", retcode)
+
+    protopack.send_data(fd, "s2c_register", {
+        retCode = retcode})
+end
+
 --
 function CMD.start()
 
 end
 
---验证
-function CMD.verify(data, fd)
-    local name, tab = protopack.unpack(data)
+--注册
+function CMD.register(tab, fd)
 
-    --玩家在确认登录之前只能发登录数据其它的一概不管
-    if name ~= "c2s_login" then 
-        sendLoginInfo(fd, 4)
+    --账号为空
+    if string.len(tab.account) == 0 then 
+        sendRigsterInfo(fd, 1)
+        return false 
     end
 
-    local ok, ret = skynet.call(".dbserver", "lua", "getByKey", "playerinfo", "account", tab.account)
+    --密码为空
+    if string.len(tab.password) == 0 then 
+        sendRigsterInfo(fd, 2)
+        return false 
+    end
+
+    local ok, ret = skynet.call(".dbserver", "lua", "select", "playerinfo", "account", tab.account)
+
+    --sql执行错误
+    if not ok then 
+        sendRigsterInfo(fd, 3)
+        return false
+    end
+
+    --账号已被注册
+    if ret then 
+        sendRigsterInfo(fd, 4)
+        return false
+    end
+
+    local cmd = string.format("insert into %s (account, password) values ('%s', '%s')", 
+        "playerinfo", 
+        tab.account, 
+        tab.password)
+
+    local ok, _ = skynet.call(".dbserver", "lua", "query", cmd)
+    if not ok then 
+        sendRigsterInfo(fd, 5)
+        return false
+    end
+
+    sendRigsterInfo(fd, 0)
+    skynet.error("注册成功")
+    return true
+end
+
+--验证
+function CMD.verify(tab, fd)
+    local ok, ret = skynet.call(".dbserver", "lua", "select", "playerinfo", "account", tab.account)
 
     --sql执行错误
     if not ok then 

@@ -50,7 +50,9 @@ function M.init(dbvalue)
 end
 
 function M.query(sql)
-    return db:query(sql)
+    local ret = db:query(sql)
+
+    return not ret.badresult, ret
 end
 
 ----------------------------------------
@@ -114,17 +116,12 @@ function M.insertTable(tablename, name, password)
         "insert into %s (name, password) values ('%s', '%s')",
         tablename, name, password)
 
-    print(sql)
-
-    --res = db:query("insert into cats (name) "
-                            --.. "values (\'Bob\')")
-
     local ret = db:query(sql)
 
     print("insertTable", dump(ret)) 
 end
 
-function M.getByKey(tablename, keyname, keyvalue)
+function M.select(tablename, keyname, keyvalue)
     local cmd = string.format("SELECT * FROM %s WHERE %s='%s' LIMIT 1", tablename, keyname, keyvalue)
 
     local ret = db:query(cmd)
@@ -135,6 +132,14 @@ end
 ---! update value
 function M.update (tableName, keyName, keyValue, fieldName, fieldValue)
     local cmd = string.format("UPDATE %s SET %s='%s' WHERE %s='%s'",tableName, fieldName, fieldValue, keyName, keyValue)
+
+    local ret = db:query(cmd)
+    
+    return not ret.badresult
+end
+
+function M.insert (tableName, keyName, keyValue)
+    local cmd = string.format("INSERT %s (%s) VALUES ('%s')", tableName, keyName, keyValue)
 
     local ret = db:query(cmd)
     

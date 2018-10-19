@@ -8,6 +8,9 @@ local M = {}
 M.c2s_login = 0
 M.s2c_login = 1
 
+M.c2s_register = 2
+M.s2c_register = 3
+
 --大厅
 M.c2s_match = 100
 M.s2c_match = 101

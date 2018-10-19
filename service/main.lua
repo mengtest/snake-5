@@ -24,6 +24,7 @@ local init_service = function()
         pre_agent_num = gameconfig.pre_agent_num,
     }, loginserver)
 
+    skynet.newservice("debug_console", "192.168.147.128", 8000)
 end
 
 skynet.start(function() 

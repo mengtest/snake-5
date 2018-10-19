@@ -38,7 +38,7 @@ function M:_sendCurTurnCommand()
         turnCmd = self._curTurnCommand
     }
 
-    --print("发送消息:", self._turnIndex)
+    --print("发送消息:", self._turnIndex, #self._curTurnCommand)
 
     --每个人都会发一次
     for k, v in pairs(self._playerList) do
@@ -70,7 +70,6 @@ end
 
 --玩家的一回合command命令
 function M:userop(playerid, cmd)
-
     if not self._playerList[playerid] then 
         return
     end

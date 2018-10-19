@@ -6,9 +6,9 @@ local gate = nil
 local agents = {}
 local playerid = 0
 
---验证----------------------------------
-local verify = function(fd, data)
-    local ret, id = skynet.call(loginserver, "lua", "verify", data, fd)
+--账号----------------------------------
+local verify = function(fd, tab)
+    local ret, id = skynet.call(loginserver, "lua", "verify", tab, fd)
 
     if ret then 
         local a = get_agent()
@@ -19,6 +19,10 @@ local verify = function(fd, data)
             watchdog = skynet.self(),
             id = id})
     end
+end
+
+local register = function(fd, tab)
+    skynet.call(loginserver, "lua", "register", tab, fd)
 end
 
 --SOCKET--------------------------------
@@ -55,7 +59,14 @@ end
 function SOCKET.data(fd, data)
     skynet.error("watch dog 数据！")
 
-    skynet.fork(verify, fd, data)
+    local name, tab = protopack.unpack(data)
+
+    if name == "c2s_login" then 
+        skynet.fork(verify, fd, tab)
+    elseif name == "c2s_register" then
+        skynet.fork(register, fd, tab)
+    end
+    
 end
 --CMD-----------------------------------
 local CMD = {}

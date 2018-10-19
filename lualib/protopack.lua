@@ -1,5 +1,6 @@
 local sproto = require("sproto")
 local socket = require("skynet.socket")
+msgIDs = require("proto.msgdef")
 
 local M = {}
 
@@ -70,5 +71,7 @@ function M.send_data(fd, msgName, msg)
     
     socket.write(fd, data)
 end
+
+M.init_proto("./lualib/proto/gameproto.txt", msgIDs)
 
 return M
