@@ -6,8 +6,8 @@ local protopack = require("protopack")
 local player    = require("player")
 local msgdef = require("proto.msgdef")
 
-local hallMsgHandler = require("hallMsgHandler")
-local roomMsgHandler = require("roomMsgHandler")
+local handlerHall = require("handlerHall")
+local handlerRoom = require("handlerRoom")
 
 local CMD = {}
 
@@ -21,13 +21,14 @@ function CMD.start(data)
     watchdog = data.watchdog
 
     g_me = player.new(data.id)
-    g_hallMsgHandler = hallMsgHandler.new()
-    g_roomMsgHandler = roomMsgHandler.new(CMD.send)
+
+    handlerHall.init(CMD.send)
+    handlerRoom.init(CMD.send)
 
     skynet.call(gate, "lua", "forward", clientfd)
-    skynet.error("开启客户端监听", gate, data.id)
+    --skynet.error("开启客户端监听", gate, data.id)
 
-    print("发送消息登录消息")
+    --print("发送消息登录消息")
     --登录成功
     CMD.send("s2c_login", {
         retCode = 0,
@@ -69,6 +70,7 @@ skynet.register_protocol {
 
     dispatch = function (_, _, name, tab)
         g_eventMgr:dispatchEvent(name, tab)
+        skynet.ignoreret()
     end
 }
 

@@ -4,14 +4,13 @@ local protopack = require("protopack")
 local loginserver = nil
 local gate = nil
 local agents = {}
-local playerid = 0
 
 --账号----------------------------------
 local verify = function(fd, tab)
     local ret, id = skynet.call(loginserver, "lua", "verify", tab, fd)
 
     if ret then 
-        local a = get_agent()
+        local a = get_agent(fd)
 
         skynet.call(a, "lua", "start", {
             gate = gate,
@@ -29,15 +28,8 @@ end
 local SOCKET = {}
 
 function SOCKET.open(fd, addr)
-    skynet.error("发现有客户端连接")
+    --skynet.error("发现有客户端连接")
     skynet.call(gate, "lua", "accept", fd)
-
-    -- local a = get_agent()
-
-    -- skynet.call(a, "lua", "start", {
-    --     gate = gate,
-    --     clientfd = fd,
-    --     watchdog = skynet.self()})
 end
 
 function SOCKET.close(fd) 
@@ -57,7 +49,7 @@ end
 
 --没有将agent传递给gete时，gate会先将数据发给watchdog
 function SOCKET.data(fd, data)
-    skynet.error("watch dog 数据！")
+    --skynet.error("watch dog 数据！")
 
     local name, tab = protopack.unpack(data)
 
@@ -87,27 +79,36 @@ local POOL = {}
 --预构造多个agent
 function create_agent_pool(conf)
     for i=1, conf.pre_agent_num do 
-        table.insert(POOL, skynet.newservice("agent", i))
+
+        table.insert(POOL, skynet.newservice("agent"))
     end
 end
 
-function get_agent()
+function get_agent(fd)
+    local agent = nil
     if #POOL > 0 then 
-        return table.remove(POOL)
+        agent = table.remove(POOL)
     end
     
-    return skynet.newservice("agent")
+    agent = skynet.newservice("agent")
+    agents[fd] = agent
+
+    return agent
 end
 
 function close_agent(fd)
     local a = agents[fd]
     agents[fd] = nil
 
+
     if a then 
         skynet.call(gate, "lua", "kick", fd)
 
+        skynet.error("发送disconnect")
         --在agent看来就是disconnect
         skynet.send(a, "lua", "disconnect")
+    else
+        skynet.error("没有agent！")
     end
 end
 

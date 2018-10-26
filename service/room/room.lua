@@ -37,9 +37,7 @@ function M:_sendCurTurnCommand()
         turnIndex = self._turnIndex,
         turnCmd = self._curTurnCommand
     }
-
-    --print("发送消息:", self._turnIndex, #self._curTurnCommand)
-
+    
     --每个人都会发一次
     for k, v in pairs(self._playerList) do
         skynet.send(v.agent, "lua", "send", "s2c_turnop", turnop)
@@ -92,12 +90,12 @@ function M:enter(player)
     end
 end
 
-function M:leave(player)
-    self._playerList[player.id] = nil
+function M:leave(playerid)
+    self._playerList[playerid] = nil
 end
 
 function M:gameStart()
-    skynet.error("房间游戏开始....", #self._playerList)
+    --skynet.error("房间游戏开始....", #self._playerList)
 
     skynet.timeout(const.FIRST_TURN_DELAY, handler(self, self._overtimeFirstTurn))
 
@@ -111,7 +109,7 @@ function M:gameStart()
     end
 
     for k, v in pairs(self._playerList) do
-        skynet.error("发送游戏开始命令")
+        --skynet.error("发送游戏开始命令")
         turnop.turnIndex = 1
         skynet.send(v.agent, "lua", "send", "s2c_gamestart", {
             turnCmd = turnop,

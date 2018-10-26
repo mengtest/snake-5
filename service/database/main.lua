@@ -18,6 +18,7 @@ function CMD.start()
         database="skynet",
         user="root",
         password="xingxingtie",
+        --Xingxingtie123!'
         max_packet_size = 1024 * 1024,
         on_connect = on_connect
     })

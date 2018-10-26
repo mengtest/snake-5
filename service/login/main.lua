@@ -15,9 +15,6 @@ end
 
 --发送数据到前端
 function sendRigsterInfo(fd, retcode)
-
-    skynet.error("注册结果", retcode)
-
     protopack.send_data(fd, "s2c_register", {
         retCode = retcode})
 end

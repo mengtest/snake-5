@@ -1,3 +1,5 @@
+
+#登录、注册==========================================================================================
 .c2s_login {        #请求登录
     account  0: string
     password 1: string
@@ -15,39 +17,162 @@
     password 1: string
 }
  
-.s2c_register {        #注册回应    
+.s2c_register {     #注册回应 
     retCode 0: integer
 }
 
-
-.userInfo {         #玩家信息    
-    id   1: integer
+#大厅=================================================================================================
+.userInfo {
+    userID    0: integer
+    name      1: string
 }
 
-.c2s_match {        #请求匹配
+#队伍------------------------------------------------------------------------
+.teamInfo {       #队伍信息
+    teamID     0:   integer
+    leaderName 1:   string     #队长名称
+    capacity   2:   integer    #容量
+    playerNum  3:   integer    #当前人数
+}
+
+.c2s_listTeam {     #请求房间列表
+ 
+}
+
+.s2c_listTeam {     #回应房间列表
+    retCode       0: integer
+    teamInfoList  1: *teamInfo
+}
+
+.c2s_createTeam {   #创建一个新队伍
     
 }
 
-.s2c_match {        #匹配结果
+.s2c_createTeam {   #回应创建一个新队伍  创建成功后，后端会自动将对房主进行enterTeam操作
+    retCode 0:      integer
+}
+
+.c2s_enterTeam {
+    teamID 0: integer
+}
+
+.s2c_enterTeam {
     retCode  0: integer
+    leader   1: integer
+    userList 2: *userInfo
+}
+
+.s2c_playerJoinTeam { #通知玩家加入队伍
+   newPlayer : userInfo
+}
+
+.c2s_leaveTeam {      #申请离队
+    
+}
+
+.s2c_leaveTeam {      #申请离队回应
+    retCode 0: integer   
+    userID  1: integer
+    newLeader 2: integer
+}
+
+#房间------------------------------------------------------------------------
+.roomInfo {         #房间信息
+    roomID    0:   integer
+    ownerName 1:   string     #房主名称
+    capacity  2:   integer    #容量
+    playerNum 3:   integer    #当前人数
+}
+
+.c2s_listRoom {     #申请房间列表
+    
+}
+
+.s2c_listRoom {
+    retCode  0:  integer
+    roomList 1:  *roomInfo
+}
+
+.c2s_createRoom {   #创建一个新房间
+    
+}
+
+.s2c_createRoom {   #回应创建一个新房间  创建成功后，后端会自动将对房主进行enterRoom操作
+    retCode 0:      integer
+}
+
+.c2s_enterRoom {    #进入房间
+    roomID  0:  integer
+}
+
+.s2c_enterRoom {    #进入房间
+    retCode 0:  integer
+    roomID  1:  integer
+}
+
+#匹配，匹配即让服务器帮玩家选择房间进入----------------------------------------
+.c2s_playerMatch {  #玩家匹配
+        
+}
+
+.s2c_playerMatch {  #玩家匹配
+    retCode 0:  integer
+    roomID  1:  integer    
+}
+
+.c2s_teamMatch {    #团队匹配
+
+}
+
+.s2c_teamMatch {    #团队匹配
+    retCode 0:  integer
+    roomID  1:  integer       
+}
+
+#房间=================================================================================================
+.c2s_roomInfo {     #获取房间信息
+    
+}
+.s2c_roomInfo {
+    ownerID 0:  integer
     userList 1: *userInfo
+    positions 2: *integer  #positionList数组的下标指代位置  数组元素指代玩家id
 }
 
-.c2s_userop {       #玩家的单次操作
-    cmdType  0: integer
-    cmdValue 1: integer
-    userID   2: integer
+.s2c_playerJoinRoom {  #通知有玩家加入房间
+    position 0: integer
+    userInfo 1: userInfo
 }
 
-.s2c_turnop {       #一回合的玩家操作数据,必定包含有所有玩家的操作
-    turnIndex       0: integer
-    turnCmd         1: *c2s_userop
+.c2s_leaveRoom {      #离开房间 离开房间后会自动进入大厅
+    
 }
 
-.s2c_gamestart {    #游戏开始
-    turnTime 0: integer     #一回合的毫秒数 
+.s2c_leaveRoom {      #通知有人离开房间，并告知当前房主
+    retCode 0:    integer
+    userID  1:    integer
+    newOwnerID 2: integer
+}
 
-    turnCmd      1: s2c_turnop  #用来指导客户端第1回合的运行
+.c2s_startGame {     #通知开始游戏
+    
+}
+
+.s2c_startGame {    
+    retCode  0:    integer
+    turnTime 1:    integer          #一回合的毫秒数 
+    turnCmd  2:    s2c_turnCommand  #用来指导客户端第1回合的运行
+}
+
+
+.c2s_userCommand {
+    cmd     0: integer
+    userID  1: integer
+}
+
+.s2c_turnCommand {  #一回合的玩家操作数据,必定包含有所有玩家的操作
+    turnIndex  0: integer
+    turnCmd    1: *c2s_userCommand
 }
 
 .pingAsk {          #ping测试请求
@@ -57,4 +182,3 @@
 .pingAck {          #ping测试回应
     index 0: integer
 }
-

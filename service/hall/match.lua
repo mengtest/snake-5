@@ -2,45 +2,66 @@
 -- Author: xingxingtie
 -- Date: 2018-09-17 13:40:32
 -- 简单按人数匹配
+local skynet = require("skynet")
+
+local MATCH_NUM = 5
+
+--等待匹配的列表
+local waitList = {}
+local mathList = {}
+
+local function wakeup(list)
+    for _, v in ipairs(list) do 
+        skynet.wakeup(v.co)
+    end
+end
+
+--挂起
+local function suspend(player)
+    local co = coroutine.running()
+    table.insert(waitList, {co = co, id = player.id})
+    skynet.wait()
+    return player.id
+end
+
+--执行匹配动作
+local function domatch()
+    if #waitList < MATCH_NUM then 
+        return
+    end
+
+    local list = {}
+    for i=1, MATCH_NUM do 
+        local p = table.remove(waitList, 1)
+        table.insert(list, p.id)
+
+        mathList[p.id] = list
+    end
+
+    wakeup(list)
+end
 
 local M = {}
 
---callBack 匹配成功之后的回调函数
-function M:ctor(callBack)
-   self._callBack = callBack   
-   self._waitList = {} 
-end
+--请求匹配，匹配完成后返回一个玩家id列表
+function M.match(player)
+    skynet.fork(domatch)
 
-function M:match(player)
-    table.insert(self._waitList, player)
+    local id = suspend()
+    local list = matchList[id]
+    mathList[id] = nil
 
-    if #self._waitList >= 1 then
-
-        local userList = {}
-        for i=1, 1 do 
-            table.insert(userList, self._waitList[1])
-            table.remove(self._waitList, 1)            
-        end
-        
-        self._callBack(userList) 
-    end
+    return list
 end
 
 --取消匹配
-function M:cancle(player)
+function M.cancle(player)
     for i=1, #self._waitList do 
-        if(self._waitList[i] == player) then 
+        if(self._waitList[i].id == player.id) then
             table.remove(self._waitList, i)
+            break
         end
     end
-end
-
-function M.new(...)
-    local o = {}
-    M.__index = M
-    setmetatable(o, M)
-    o:ctor(...)
-    return o
 end
 
 return M

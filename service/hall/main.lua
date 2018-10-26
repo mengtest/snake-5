@@ -4,29 +4,18 @@
 --
 require("common.init")
 local skynet = require("skynet")
-local skynet = require("skynet.manager")
+local hall   = require("hall")
 
-local CMD = {}
-
-function CMD.start()
-    skynet.name("hall", skynet.self())
-
-    g_hall = require("hall").new(10)
-end
 
 skynet.start(function()
-
     skynet.dispatch("lua", function(_, _, cmd, ...)
-        local f = CMD[cmd]
+        local f = hall[cmd]
+
         if f then 
             skynet.ret(skynet.pack(f(...)))
             return
         end
-
-        f = g_hall[cmd]
-        if f then 
-            skynet.ret(skynet.pack(f(g_hall, ...)))
-            return
-        end
     end)
+
+    hall.init()
 end)
