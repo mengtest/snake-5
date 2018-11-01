@@ -63,7 +63,7 @@
 }
 
 .s2c_playerJoinTeam { #通知玩家加入队伍
-   newPlayer : userInfo
+   newPlayer 0: userInfo
 }
 
 .c2s_leaveTeam {      #申请离队

@@ -3,20 +3,30 @@ local protopack = require("protopack")
 
 local loginserver = nil
 local gate = nil
-local agents = {}
+
+local agents = {}       -- key fd: value:agent,与玩家socket断连后该key value关系将不复存在
+local onlineUser = {}   -- 在线玩家 key:userID value:agent,与玩家socket断连后玩家在服务器中的agent依然存在。
 
 --账号----------------------------------
 local verify = function(fd, tab)
-    local ret, id = skynet.call(loginserver, "lua", "verify", tab, fd)
+    local ret, userid, account = skynet.call(loginserver, "lua", "verify", tab, fd)
 
     if ret then 
-        local a = get_agent(fd)
+        if onlineUser[account] then 
+            agents[fd] = agent
+            skynet.call(onlineUser[account], "lua", "connect", fd})
+        else 
+            local agent = get_agent(fd)
 
-        skynet.call(a, "lua", "start", {
-            gate = gate,
-            clientfd = fd,
-            watchdog = skynet.self(),
-            id = id})
+            onlineUser[account] = agent
+            agents[fd] = agent
+
+            skynet.call(agent, "lua", "start", {
+                gate = gate,
+                clientfd = fd,
+                watchdog = skynet.self(),
+                userid = userid})
+        end
     end
 end
 
@@ -55,10 +65,10 @@ function SOCKET.data(fd, data)
 
     if name == "c2s_login" then 
         skynet.fork(verify, fd, tab)
+
     elseif name == "c2s_register" then
         skynet.fork(register, fd, tab)
     end
-    
 end
 --CMD-----------------------------------
 local CMD = {}
@@ -74,6 +84,11 @@ end
 function CMD.close(fd) 
     close_agent(fd)
 end
+
+--agent服务退出，此时便没有了该agent
+function CMD.agentExit(account)
+    onlineUser[account] = nil
+end
 --private-------------------------------
 local POOL = {}
 --预构造多个agent
@@ -88,24 +103,21 @@ function get_agent(fd)
     local agent = nil
     if #POOL > 0 then 
         agent = table.remove(POOL)
+    else
+        agent = skynet.newservice("agent")
     end
-    
-    agent = skynet.newservice("agent")
-    agents[fd] = agent
 
     return agent
 end
 
+--将fd和agent解除绑定，但是onlineUser中的account和agent没有解除绑定
 function close_agent(fd)
     local a = agents[fd]
     agents[fd] = nil
 
-
     if a then 
         skynet.call(gate, "lua", "kick", fd)
 
-        skynet.error("发送disconnect")
-        --在agent看来就是disconnect
         skynet.send(a, "lua", "disconnect")
     else
         skynet.error("没有agent！")

@@ -1,5 +1,7 @@
 local skynet = require("skynet")
 local protopack = require("protopack")
+local ErrorCode = require("proto.errorCode")
+local genid = require("genid")
 
 local CMD = {}
 local id = 1
@@ -29,13 +31,13 @@ function CMD.register(tab, fd)
 
     --账号为空
     if string.len(tab.account) == 0 then 
-        sendRigsterInfo(fd, 1)
+        sendRigsterInfo(fd, ErrorCode.ACCOUNT_EMPTY)
         return false 
     end
 
     --密码为空
     if string.len(tab.password) == 0 then 
-        sendRigsterInfo(fd, 2)
+        sendRigsterInfo(fd, ErrorCode.PASSWORD_EMPTY)
         return false 
     end
 
@@ -43,28 +45,30 @@ function CMD.register(tab, fd)
 
     --sql执行错误
     if not ok then 
-        sendRigsterInfo(fd, 3)
+        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
         return false
     end
 
     --账号已被注册
     if ret then 
-        sendRigsterInfo(fd, 4)
+        sendRigsterInfo(fd, ErrorCode.ACCOUT_EXIST)
         return false
     end
 
-    local cmd = string.format("insert into %s (account, password) values ('%s', '%s')", 
+    local userid = genid.gen_userid()
+
+    local cmd = string.format("insert into %s (account, password, userid) values ('%s', '%s', )", 
         "playerinfo", 
         tab.account, 
         tab.password)
 
     local ok, _ = skynet.call(".dbserver", "lua", "query", cmd)
     if not ok then 
-        sendRigsterInfo(fd, 5)
+        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
         return false
     end
 
-    sendRigsterInfo(fd, 0)
+    sendRigsterInfo(fd, ErrorCode.OK)
     skynet.error("注册成功")
     return true
 end
@@ -95,7 +99,7 @@ function CMD.verify(tab, fd)
     sendLoginInfo(fd, 0, id, tab.account, "token")
     id = id + 1
 
-    return true, id
+    return true, id, tab.account
 end
 
 skynet.start(function() 

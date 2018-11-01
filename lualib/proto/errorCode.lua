@@ -13,6 +13,12 @@ local M = {
     TEAM_IS_FULL = 3,           [3] = "队伍已满员",
     NOT_IN_TEAM = 3,            [3] = "没在队伍中",
     ROOM_NOT_LEAVE_TEAM = 5,    [5] = "已在房间中无法离队",
+
+    SERVER_ERROR = 5,           [5] = "内部错误",    
+    ACCOUNT_EMPTY = 5,          [5] = "账号不能为空",    
+    PASSWORD_EMPTY = 5,         [5] = "密码不能为空",    
+    ACCOUT_EXIST = 5            [5] = "账号已被注册",    
+
 }
 
 return M

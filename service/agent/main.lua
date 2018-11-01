@@ -1,13 +1,12 @@
-
-
 require("common.init")
 local skynet    = require("skynet")
 local protopack = require("protopack")
 local player    = require("player")
 local msgdef = require("proto.msgdef")
 
-local handlerHall = require("handlerHall")
-local handlerRoom = require("handlerRoom")
+local msgHandler = require("handler")
+require("handlerHall")
+require("handlerRoom")
 
 local CMD = {}
 
@@ -16,31 +15,33 @@ gate = nil
 watchdog = nil
 
 function CMD.start(data)
-    clientfd = data.clientfd
     gate = data.gate
     watchdog = data.watchdog
 
     g_me = player.new(data.id)
+    g_send = CMD.send
 
     handlerHall.init(CMD.send)
     handlerRoom.init(CMD.send)
 
+    clientfd = fd
     skynet.call(gate, "lua", "forward", clientfd)
-    --skynet.error("开启客户端监听", gate, data.id)
 
-    --print("发送消息登录消息")
-    --登录成功
-    CMD.send("s2c_login", {
-        retCode = 0,
-        id      = g_me:getID()})
-    --进入大厅
+    --直接进入大厅
     skynet.call("hall", "lua", "enter", g_me:pack())
+end
+
+function CMD.reconnect(fd)
+    skynet.error("玩家断线重连")
+
+    clientfd = fd
+
+    skynet.call(gate, "lua", "forward", clientfd)
 end
 
 function CMD.disconnect()
     skynet.error("玩家掉线")
 
-    --离开大厅
     skynet.call("hall", "lua", "leave", g_me:getID())
 
     skynet.exit()
@@ -48,16 +49,6 @@ end
 
 function CMD.send(name, msg)
     protopack.send_data(clientfd, name, msg)
-end
-
---进入房间
-function CMD.enterRoom(room)
-    g_me:setRoom(room)                
-end
-
---离开房间
-function CMD.leaveRoom(room)
-    g_me:setRoom(nil)
 end
 
 skynet.register_protocol {
@@ -69,7 +60,12 @@ skynet.register_protocol {
     end,
 
     dispatch = function (_, _, name, tab)
-        g_eventMgr:dispatchEvent(name, tab)
+        skynet.ignoreret()
+
+        if msgHandler[name] then 
+            msgHandler[name](tab)
+        end
+        
         skynet.ignoreret()
     end
 }

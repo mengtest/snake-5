@@ -28,7 +28,6 @@ function CMD.start()
     skynet.name(".dbserver", skynet.self())
 end
 
---删除db
 function CMD.query(sql)
     return dbtool.query(sql)
 end
@@ -39,6 +38,10 @@ end
 
 function CMD.update(tableName, keyName, keyValue, fieldName, fieldValue)
     return dbtool.update(tableName, keyName, keyValue, fieldName, fieldValue)
+end
+
+function CMD.insert(tableName, keyName, keyValue)
+    return dbtool.insert(tableName, keyName, keyValue)
 end
 
 
