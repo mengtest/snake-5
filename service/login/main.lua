@@ -2,6 +2,7 @@ local skynet = require("skynet")
 local protopack = require("protopack")
 local ErrorCode = require("proto.errorCode")
 local genid = require("genid")
+local dbtable = require("common.dbtable")
 
 local CMD = {}
 local id = 1
@@ -26,9 +27,39 @@ function CMD.start()
 
 end
 
+--在数据库中创建新的玩家
+function createNewUser(account, password, userid)
+    --插入playerinfor数据
+    local cmd = string.format("insert into %s (account, password, userid) values ('%s', '%s', %d)", 
+        "playerinfo", 
+        account, 
+        password,
+        userid)
+
+    local ok, _ = skynet.call("dbserver", "lua", "query", cmd)
+    if not ok then 
+        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
+        return false
+    end
+
+    --插入gameinfo数据
+    local cmd = string.format("insert into %s (userid, wincount, losecount) values (%d, %d, %d)", 
+        "gameinfo", 
+        userid, 
+        0,
+        0)
+
+    local ok, _ = skynet.call("dbserver", "lua", "query", cmd)
+    if not ok then 
+        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
+        return false
+    end
+
+    return true
+end
+
 --注册
 function CMD.register(tab, fd)
-
     --账号为空
     if string.len(tab.account) == 0 then 
         sendRigsterInfo(fd, ErrorCode.ACCOUNT_EMPTY)
@@ -41,7 +72,8 @@ function CMD.register(tab, fd)
         return false 
     end
 
-    local ok, ret = skynet.call(".dbserver", "lua", "select", "playerinfo", "account", tab.account)
+    local whereSql = dbtable.genWhereSql(tab, {"account"})
+    local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
 
     --sql执行错误
     if not ok then 
@@ -55,16 +87,7 @@ function CMD.register(tab, fd)
         return false
     end
 
-    local userid = genid.gen_userid()
-
-    local cmd = string.format("insert into %s (account, password, userid) values ('%s', '%s', )", 
-        "playerinfo", 
-        tab.account, 
-        tab.password)
-
-    local ok, _ = skynet.call(".dbserver", "lua", "query", cmd)
-    if not ok then 
-        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
+    if not createNewUser(tab.account, tab.password, genid.gen_userid()) then 
         return false
     end
 
@@ -75,7 +98,10 @@ end
 
 --验证
 function CMD.verify(tab, fd)
-    local ok, ret = skynet.call(".dbserver", "lua", "select", "playerinfo", "account", tab.account)
+    local whereSql = dbtable.genWhereSql(tab, {"account"})
+    local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
+
+    --local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", "account", tab.account)
 
     --sql执行错误
     if not ok then 
@@ -96,10 +122,9 @@ function CMD.verify(tab, fd)
     end
 
     --正确
-    sendLoginInfo(fd, 0, id, tab.account, "token")
-    id = id + 1
+    sendLoginInfo(fd, 0, ret.userid, tab.account, "token")
 
-    return true, id, tab.account
+    return true, ret.userid, tab.account
 end
 
 skynet.start(function() 

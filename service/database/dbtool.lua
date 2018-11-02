@@ -50,9 +50,21 @@ function M.init(dbvalue)
 end
 
 ----------------------------------------
+function M.query(sql)
+    print("query:", sql)
+
+    local ret = db:query(sql)
+
+    print(sql)
+    
+    return not ret.badresult, ret
+end
+
 --仅仅返回一个结果
-function M.select (tablename, keyname, keyvalue)
-    local cmd = string.format("SELECT * FROM %s WHERE %s='%s' LIMIT 1", tablename, keyname, keyvalue)
+function M.select (tablename, condition)
+    local cmd = string.format("SELECT * FROM %s WHERE %s LIMIT 1", tablename, condition)
+
+    print(cmd)
 
     local ret = db:query(cmd)
 
@@ -63,6 +75,8 @@ end
 function M.update (tableName, keyName, keyValue, fieldName, fieldValue)
     local cmd = string.format("UPDATE %s SET %s='%s' WHERE %s='%s'",tableName, fieldName, fieldValue, keyName, keyValue)
 
+    print(cmd)
+
     local ret = db:query(cmd)
     
     return not ret.badresult
@@ -70,6 +84,8 @@ end
 
 function M.insert (tableName, keyName, keyValue)
     local cmd = string.format("INSERT %s (%s) VALUES ('%s')", tableName, keyName, keyValue)
+
+    print(cmd)
 
     local ret = db:query(cmd)
     

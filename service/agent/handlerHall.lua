@@ -4,7 +4,7 @@
 -- 大厅消息
 
 local skynet = require("skynet")
-local hall = skynet.uniqueservice(true, "hall")
+--local hall = skynet.uniqueservice(true, "hall")
 
 local M = require("handler")
 

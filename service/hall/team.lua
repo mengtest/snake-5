@@ -5,8 +5,8 @@ M.__index = M
 
 function M.new()
     local obj = setmetatable({
-        obj.id = teamID,
-        obj.leaderID = nil,
+        id = teamID,
+        leaderID = nil,
         capacity = 5,
         playerList = {},
     }, M)

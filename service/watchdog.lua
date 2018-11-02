@@ -14,8 +14,9 @@ local verify = function(fd, tab)
     if ret then 
         if onlineUser[account] then 
             agents[fd] = agent
-            skynet.call(onlineUser[account], "lua", "connect", fd})
+            skynet.call(onlineUser[account], "lua", "connect", fd)
         else 
+            skynet.error("验证完毕", userid, account)
             local agent = get_agent(fd)
 
             onlineUser[account] = agent
@@ -38,7 +39,7 @@ end
 local SOCKET = {}
 
 function SOCKET.open(fd, addr)
-    --skynet.error("发现有客户端连接")
+    skynet.error("发现有客户端连接")
     skynet.call(gate, "lua", "accept", fd)
 end
 
@@ -95,7 +96,7 @@ local POOL = {}
 function create_agent_pool(conf)
     for i=1, conf.pre_agent_num do 
 
-        table.insert(POOL, skynet.newservice("agent"))
+        --table.insert(POOL, skynet.newservice("agent"))
     end
 end
 

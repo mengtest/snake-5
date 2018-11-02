@@ -25,15 +25,15 @@ function CMD.start()
 
     dbtool.init(db)
 
-    skynet.name(".dbserver", skynet.self())
+    skynet.name("dbserver", skynet.self())
 end
 
 function CMD.query(sql)
     return dbtool.query(sql)
 end
 
-function CMD.select(tablename, keyname, keyvalue)
-    return dbtool.select(tablename, keyname, keyvalue)
+function CMD.select(tablename, condition)
+    return dbtool.select(tablename, condition)
 end
 
 function CMD.update(tableName, keyName, keyValue, fieldName, fieldValue)
@@ -48,6 +48,7 @@ end
 skynet.start(function() 
     skynet.dispatch("lua", function(_, _, cmd, ...)
         local f = CMD[cmd]
+
         if f then 
             skynet.ret(skynet.pack(f(...)))
             return

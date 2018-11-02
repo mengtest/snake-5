@@ -7,17 +7,17 @@ local M = {
     ALREADY_IN_HALL = 3,        [3] = "已在大厅中",
     TEAM_NOT_CREATE_TEAM = 4,   [4] = "已在队伍中无法创建队伍",
     ROOM_NOT_CREATE_TEAM = 5,   [5] = "已在房间中无法创建队伍",
-    ALREADY_IN_TEAM = 3,        [3] = "已在队伍中",
-    ALREADY_IN_ROOM = 3,        [3] = "已在房间中",
-    TEAM_NOT_EXIST = 3,         [3] = "队伍不存在",
-    TEAM_IS_FULL = 3,           [3] = "队伍已满员",
-    NOT_IN_TEAM = 3,            [3] = "没在队伍中",
-    ROOM_NOT_LEAVE_TEAM = 5,    [5] = "已在房间中无法离队",
+    ALREADY_IN_TEAM = 6,        [6] = "已在队伍中",
+    ALREADY_IN_ROOM = 7,        [7] = "已在房间中",
+    TEAM_NOT_EXIST = 8,         [8] = "队伍不存在",
+    TEAM_IS_FULL = 9,           [9] = "队伍已满员",
+    NOT_IN_TEAM = 10,           [10] = "没在队伍中",
+    ROOM_NOT_LEAVE_TEAM = 11,   [11] = "已在房间中无法离队",
 
-    SERVER_ERROR = 5,           [5] = "内部错误",    
-    ACCOUNT_EMPTY = 5,          [5] = "账号不能为空",    
-    PASSWORD_EMPTY = 5,         [5] = "密码不能为空",    
-    ACCOUT_EXIST = 5            [5] = "账号已被注册",    
+    SERVER_ERROR = 12,          [12] = "内部错误",    
+    ACCOUNT_EMPTY = 13,         [13] = "账号不能为空",    
+    PASSWORD_EMPTY = 14,        [14] = "密码不能为空",    
+    ACCOUT_EXIST = 15,          [15] = "账号已被注册",    
 
 }
 
