@@ -13,7 +13,8 @@ skynet.start(function()
 
         if f then 
             skynet.ret(skynet.pack(f(...)))
-            return
+        else 
+            skynet.error("can't find cmd in hall:", cmd)
         end
     end)
 

@@ -28,7 +28,7 @@
 }
 
 #队伍------------------------------------------------------------------------
-.teamInfo {       #队伍信息
+.teamInfo {         #队伍信息
     teamID     0:   integer
     leaderName 1:   string     #队长名称
     capacity   2:   integer    #容量
@@ -130,7 +130,7 @@
 }
 
 #房间=================================================================================================
-.c2s_roomInfo {     #获取房间信息
+.c2s_roomInfo {       #获取房间信息
     
 }
 .s2c_roomInfo {
@@ -139,7 +139,7 @@
     positions 2: *integer  #positionList数组的下标指代位置  数组元素指代玩家id
 }
 
-.s2c_playerJoinRoom {  #通知有玩家加入房间
+.s2c_playerJoinRoom { #通知有玩家加入房间
     position 0: integer
     userInfo 1: userInfo
 }

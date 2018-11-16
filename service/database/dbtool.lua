@@ -51,45 +51,45 @@ end
 
 ----------------------------------------
 function M.query(sql)
-    print("query:", sql)
-
     local ret = db:query(sql)
 
-    print(sql)
+    assert(not ret.badresult)
     
-    return not ret.badresult, ret
+    return ret
 end
 
 --仅仅返回一个结果
 function M.select (tablename, condition)
     local cmd = string.format("SELECT * FROM %s WHERE %s LIMIT 1", tablename, condition)
 
-    print(cmd)
-
     local ret = db:query(cmd)
 
-    return not ret.badresult, ret[1]
+    print(cmd)
+
+    assert(not ret.badresult)
+
+    return ret[1]
 end
 
 ---! update value
 function M.update (tableName, keyName, keyValue, fieldName, fieldValue)
     local cmd = string.format("UPDATE %s SET %s='%s' WHERE %s='%s'",tableName, fieldName, fieldValue, keyName, keyValue)
 
-    print(cmd)
-
     local ret = db:query(cmd)
-    
-    return not ret.badresult
+
+    assert(not ret.badresult)
+
+    return ret
 end
 
 function M.insert (tableName, keyName, keyValue)
     local cmd = string.format("INSERT %s (%s) VALUES ('%s')", tableName, keyName, keyValue)
 
-    print(cmd)
-
     local ret = db:query(cmd)
     
-    return not ret.badresult
+    assert(not ret.badresult)
+
+    return ret
 end
 ----------------------------------------
 

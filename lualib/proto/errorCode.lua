@@ -18,6 +18,11 @@ local M = {
     ACCOUNT_EMPTY = 13,         [13] = "账号不能为空",    
     PASSWORD_EMPTY = 14,        [14] = "密码不能为空",    
     ACCOUT_EXIST = 15,          [15] = "账号已被注册",    
+    NO_ACCOUNT = 16,            [16] = "没有此账号",    
+    WRONG_PASSWORD = 17,        [17] = "密码错误",    
+
+	NONE_ROOM = 18, 	        [18] = "房间不存在",    
+	ROOM_IS_FULL = 19,  	    [19] = "房间已满员",    
 
 }
 

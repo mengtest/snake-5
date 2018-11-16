@@ -14,7 +14,7 @@ local verify = function(fd, tab)
     if ret then 
         if onlineUser[account] then 
             agents[fd] = agent
-            skynet.call(onlineUser[account], "lua", "connect", fd)
+            skynet.call(onlineUser[account], "lua", "reconnect", fd)
         else 
             skynet.error("验证完毕", userid, account)
             local agent = get_agent(fd)
@@ -26,7 +26,8 @@ local verify = function(fd, tab)
                 gate = gate,
                 clientfd = fd,
                 watchdog = skynet.self(),
-                userid = userid})
+                userid = userid,
+                account = account})
         end
     end
 end
@@ -60,8 +61,6 @@ end
 
 --没有将agent传递给gete时，gate会先将数据发给watchdog
 function SOCKET.data(fd, data)
-    --skynet.error("watch dog 数据！")
-
     local name, tab = protopack.unpack(data)
 
     if name == "c2s_login" then 

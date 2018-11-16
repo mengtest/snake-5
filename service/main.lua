@@ -15,7 +15,7 @@ local init_service = function()
     local watchdog = skynet.uniqueservice("watchdog")
 
     local hall = skynet.uniqueservice(true, "hall")
-    --skynet.call(hall, "lua", "start")
+    skynet.name("hall", hall)
 
     local result = skynet.call(watchdog, "lua", "start", {
         port = gameconfig.server_port,

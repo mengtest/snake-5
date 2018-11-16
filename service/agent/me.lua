@@ -14,20 +14,18 @@ local DATA = {}
 function M.loadDBData()
     for _, v in ipairs(tabledefine) do
         for tableName, mainKeys in pairs(v) do 
-            local sqlWhere = dbtable.genWhereSql(DATA, mainKeys)
-            local ok, ret = skynet.call("dbserver", "lua", "select", tableName, sqlWhere)
-            
-            if ok then 
-                DATA[tabName] = dbtable.genDBTable(ret, tableName, mainKeys)    
-            end
+            local sqlWhere = dbtable.genWhereSql(M, mainKeys)
+            local ret = skynet.call("dbserver", "lua", "select", tableName, sqlWhere)
+            DATA[tableName] = dbtable.genDBTable(ret, tableName, mainKeys)    
         end
     end
 end
 
-function M.init(id)
-    DATA.userid = id      --玩家唯一id
+function M.init(userid, account)
+    M.userid  = userid      
+    M.account = account
 
-    --M.loadDBData()
+    M.loadDBData()
 end
 
 --获取数据 key是A.B.C.D结构，表示从从A到D按顺序查找key的value
@@ -80,13 +78,17 @@ function M.flush(key)
     return true
 end
 
-function M.pack(fd)
+--打包大厅需要的信息
+function M.packHallInfo()
     return {
-        agent = skynet.self(),
-        id = self._id,
-        fd = fd,
+        handle  = skynet.self(),
+        account = M.account,
+        userid  = M.userid
     }
 end
 
+function M.getUserID()
+    return M.userid
+end
 
 return M

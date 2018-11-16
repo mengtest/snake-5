@@ -4,12 +4,11 @@
 -- 大厅消息
 
 local skynet = require("skynet")
---local hall = skynet.uniqueservice(true, "hall")
-
 local M = require("handler")
+local ErrorCode = require("proto.errorCode")
 
 function M.c2s_listTeam()
-    local ret, list = skynet.call(hall, "lua", "listTeam")
+    local ret, list = skynet.call("hall", "lua", "listTeam")
 
     local result = {
         retCode = ret,
@@ -20,7 +19,7 @@ function M.c2s_listTeam()
 end
 
 function M.c2s_createTeam()
-    local ret, teamID = skynet.call(hall, "lua", "createTeam", g_me.getId())
+    local ret, teamID = skynet.call("hall", "lua", "createTeam", g_me.getUserID())
     g_send("s2c_createTeam", ret)
 
     if ret ~= ErrorCode.OK then 
@@ -32,7 +31,7 @@ function M.c2s_createTeam()
 end
 
 function M.c2s_enterTeam(msg)
-    local ret, result = skynet.call(hall, "lua", "enterTeam", g_me.getId(), msg.teamID)
+    local ret, result = skynet.call("hall", "lua", "enterTeam", g_me.getUserID(), msg.teamID)
 
     if ret == ErrorCode.OK then 
         result.retCode = ret
@@ -43,7 +42,7 @@ function M.c2s_enterTeam(msg)
 end
 
 function M.c2s_leaveTeam()
-    local ret, result = skynet.call(hall, "lua", "leaveTeam", g_me.getId())
+    local ret, result = skynet.call("hall", "lua", "leaveTeam", g_me.getUserID())
 
     if ret == ErrorCode.OK then 
         g_send("s2c_leaveTeam", result) 
@@ -52,9 +51,34 @@ function M.c2s_leaveTeam()
     end
 end
 
--- function M:c2s_listTeam()
---     --print("请求大厅匹配")
---     local s = skynet.queryservice(true, "hall")
 
---     skynet.call(s, "lua", "match", g_me:getID())    
--- end
+--房间---------------------------------------------------
+function M.c2s_listRoom()
+    local ret, size =  skynet.call("hall", "lua", "listRoom")
+
+    ret = skynet.unpack(ret, size)
+
+    g_send("s2c_listRoom", {retCode = ErrorCode.OK, roomList = ret})  
+end
+
+function M.c2s_createRoom()
+    local ret, roomID = skynet.call("hall", "lua", "createRoom", g_me.getUserID())
+
+    g_send("s2c_createRoom", {retCode = ret}) 
+
+    --创建房间之后立马进入房间
+    if ret == ErrorCode.OK then 
+        M.c2s_enterRoom({roomID = roomID})
+    end
+end
+
+function M.c2s_enterRoom(msg)
+    local ret, roomID = skynet.call("hall", "lua", "enterRoom", msg.roomID, g_me.getUserID())    
+
+    if ret == ErrorCode.OK then 
+        skynet.error("进入房间成功")
+        g_send("s2c_enterRoom", {retCode = ret, roomId = roomID}) 
+    else
+        g_send("s2c_enterRoom", {retCode = ret}) 
+    end
+end

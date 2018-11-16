@@ -15,3 +15,11 @@ split = function( str, reps )
     end)
     return resultStrList
 end
+
+table.indexof = function(tab, elem)
+    for i,v in ipairs(tab) do
+        if v == elem then 
+            return i
+        end
+    end
+end

@@ -1,8 +1,8 @@
 require("common.init")
 local skynet    = require("skynet")
 local protopack = require("protopack")
-local msgdef    = require("proto.msgdef")
-local g_me      = require("me")
+local msgdef    = require("proto.ConstMsgID")
+g_me      = require("me")
 
 local msgHandler = require("handler")
 require("handlerHall")
@@ -18,16 +18,15 @@ function CMD.start(data)
     gate = data.gate
     watchdog = data.watchdog
 
-    g_me.init(data.userid)
+    g_me.init(data.userid, data.account)
     g_send = CMD.send
 
-    clientfd = fd
+    clientfd = data.clientfd
     skynet.error("agent 开始！")
-    assert(false, "debug")
-    --skynet.call(gate, "lua", "forward", clientfd)
+    skynet.call(gate, "lua", "forward", clientfd)
 
     --直接进入大厅
-    --skynet.call("hall", "lua", "enter", g_me:pack())
+    skynet.call("hall", "lua", "enterHall", g_me.packHallInfo())
 end
 
 function CMD.reconnect(fd)
@@ -41,7 +40,7 @@ end
 function CMD.disconnect()
     skynet.error("玩家掉线")
 
-    skynet.call("hall", "lua", "leave", g_me:getID())
+    skynet.call("hall", "lua", "leave", g_me.getUserID())
 
     skynet.exit()
 end
@@ -64,15 +63,13 @@ skynet.register_protocol {
         if msgHandler[name] then 
             msgHandler[name](tab)
         end
-        
-        skynet.ignoreret()
     end
 }
 
 skynet.start(function()
     skynet.dispatch("lua", function(_, _, cmd, ...)
-        print("agent街收到命令", cmd, ...)
-        assert(cmd ~= "start")
+        --print("agent街收到命令", cmd, ...)
+        
         local f = CMD[cmd]
 
         skynet.ret(skynet.pack(f(...)))

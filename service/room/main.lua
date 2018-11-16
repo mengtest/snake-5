@@ -4,26 +4,16 @@
 -- 房间服务主类 一个服务就是一个房间
 require("common.init")
 local skynet = require("skynet")
-
-local param = {...}
-local CMD = {}
-
-function CMD.start()
-    g_room = require("room").new()
-end
+local room = require("room")
 
 skynet.start(function()
     skynet.dispatch("lua", function(_, _, cmd, ...)
-        local f = CMD[cmd]
+        local f = room[cmd]
         if f then 
             skynet.ret(skynet.pack(f(...)))
             return 
-        end
-
-        local f = g_room[cmd]
-        if f then 
-            skynet.ret(skynet.pack(f(g_room, ...)))
-            return 
+        else 
+            skynet.error("can't find cmd in room:", cmd)
         end        
     end)
 end)

@@ -1,6 +1,6 @@
 local sproto = require("sproto")
 local socket = require("skynet.socket")
-msgIDs = require("proto.msgdef")
+msgIDs = require("proto.ConstMsgID")
 
 local M = {}
 
@@ -52,6 +52,8 @@ function M.unpack(msg)
     local id, buf = string.unpack(">I4c"..len, msg)
 
     local name = M.id_to_name(id)
+    print("unpack", name, id)
+
     return name, sp:decode(name, buf)
 end
 

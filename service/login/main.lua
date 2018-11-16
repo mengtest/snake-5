@@ -36,12 +36,8 @@ function createNewUser(account, password, userid)
         password,
         userid)
 
-    local ok, _ = skynet.call("dbserver", "lua", "query", cmd)
-    if not ok then 
-        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
-        return false
-    end
-
+    skynet.call("dbserver", "lua", "query", cmd)
+    
     --插入gameinfo数据
     local cmd = string.format("insert into %s (userid, wincount, losecount) values (%d, %d, %d)", 
         "gameinfo", 
@@ -49,12 +45,8 @@ function createNewUser(account, password, userid)
         0,
         0)
 
-    local ok, _ = skynet.call("dbserver", "lua", "query", cmd)
-    if not ok then 
-        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
-        return false
-    end
-
+    skynet.call("dbserver", "lua", "query", cmd)
+    
     return true
 end
 
@@ -73,13 +65,7 @@ function CMD.register(tab, fd)
     end
 
     local whereSql = dbtable.genWhereSql(tab, {"account"})
-    local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
-
-    --sql执行错误
-    if not ok then 
-        sendRigsterInfo(fd, ErrorCode.SERVER_ERROR)
-        return false
-    end
+    local ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
 
     --账号已被注册
     if ret then 
@@ -92,32 +78,23 @@ function CMD.register(tab, fd)
     end
 
     sendRigsterInfo(fd, ErrorCode.OK)
-    skynet.error("注册成功")
     return true
 end
 
 --验证
 function CMD.verify(tab, fd)
     local whereSql = dbtable.genWhereSql(tab, {"account"})
-    local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
-
-    --local ok, ret = skynet.call("dbserver", "lua", "select", "playerinfo", "account", tab.account)
-
-    --sql执行错误
-    if not ok then 
-        sendLoginInfo(fd, 3)
-        return false
-    end
+    local ret = skynet.call("dbserver", "lua", "select", "playerinfo", whereSql)
 
     --没有该玩家
     if not ret then 
-        sendLoginInfo(fd, 1)
+        sendLoginInfo(fd, ErrorCode.NO_ACCOUNT)
         return false
     end
 
     --密码错误
     if ret.password ~= tab.password then 
-        sendLoginInfo(fd, 2)
+        sendLoginInfo(fd, ErrorCode.WRONG_PASSWORD)
         return false
     end
 

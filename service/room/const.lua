@@ -5,6 +5,9 @@
 
 local M = {}
 
+M.ROOM_CAPACITY = 10  --房间容量
+M.INVIAL_OWNER  = -1  --没有房主
+
 M.STATE_FREE    = 1   --自由状态
 M.STATE_GAMING  = 2   --游戏状态
 
