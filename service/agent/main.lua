@@ -35,18 +35,40 @@ function CMD.reconnect(fd)
     clientfd = fd
 
     skynet.call(gate, "lua", "forward", clientfd)
+
+    local roomHandle = g_me.getRoomHandle()
+    if roomHandle then    --在房间里面
+        msgHandler.c2s_enterRoom({roomID = roomHandle})
+    end
 end
 
 function CMD.disconnect()
     skynet.error("玩家掉线")
 
-    skynet.call("hall", "lua", "leave", g_me.getUserID())
+    --skynet.call("hall", "lua", "leave", g_me.getUserID())
 
-    skynet.exit()
+    --skynet.exit()
 end
 
 function CMD.send(name, msg)
     protopack.send_data(clientfd, name, msg)
+end
+
+--普通数据操作
+function CMD.updateData(key, value)
+    if g_me[key] then 
+        g_me[key] = value
+    else
+        g_me.update(key, value)
+    end
+end
+
+function CMD.queryData(key)
+    if g_me[key] then 
+        return g_me[key]
+    else
+        return g_me.query(key)
+    end
 end
 
 skynet.register_protocol {

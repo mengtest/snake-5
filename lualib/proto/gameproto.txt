@@ -66,11 +66,11 @@
    newPlayer 0: userInfo
 }
 
-.c2s_leaveTeam {      #申请离队
+.c2s_playerLeaveTeam {      #申请离队
     
 }
 
-.s2c_leaveTeam {      #申请离队回应
+.s2c_playerLeaveTeam {      #申请离队回应
     retCode 0: integer   
     userID  1: integer
     newLeader 2: integer
@@ -130,40 +130,55 @@
 }
 
 #房间=================================================================================================
-.c2s_roomInfo {       #获取房间信息
+.roomPlayerInfo {
+    userID    0: integer
+    name      1: string   
+    winCount  2: integer
+    loseCount 3: integer
+    position  4: integer
+}
+
+.c2s_roomInfo {     #获取房间信息
     
 }
 .s2c_roomInfo {
-    ownerID 0:  integer
-    userList 1: *userInfo
-    positions 2: *integer  #positionList数组的下标指代位置  数组元素指代玩家id
+    retCode   0:   integer
+    ownerID   1:   integer
+    userList  2:   *roomPlayerInfo
 }
 
 .s2c_playerJoinRoom { #通知有玩家加入房间
-    position 0: integer
-    userInfo 1: userInfo
+    playerinfo 0: roomPlayerInfo
 }
 
-.c2s_leaveRoom {      #离开房间 离开房间后会自动进入大厅
+.c2s_playerLeaveRoom {      #离开房间 离开房间后会自动进入大厅
     
 }
 
-.s2c_leaveRoom {      #通知有人离开房间，并告知当前房主
+.s2c_playerLeaveRoom {      #通知有人离开房间，并告知当前房主
     retCode 0:    integer
     userID  1:    integer
     newOwnerID 2: integer
 }
 
-.c2s_startGame {     #通知开始游戏
+.c2s_changeSeat {
+    targetSeat 0: integer
+}
+
+.s2c_changeSeat {
+    retCode 0:    integer
+	originSeat 1: integer
+    targetSeat 2: integer
+}
+
+.c2s_startGame {  #通知开始游戏
     
 }
 
-.s2c_startGame {    
+.s2c_startGame {    #通知游戏开始
     retCode  0:    integer
     turnTime 1:    integer          #一回合的毫秒数 
-    turnCmd  2:    s2c_turnCommand  #用来指导客户端第1回合的运行
 }
-
 
 .c2s_userCommand {
     cmd     0: integer

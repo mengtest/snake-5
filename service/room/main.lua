@@ -5,10 +5,11 @@
 require("common.init")
 local skynet = require("skynet")
 local room = require("room")
+local game = require("game")
 
 skynet.start(function()
     skynet.dispatch("lua", function(_, _, cmd, ...)
-        local f = room[cmd]
+        local f = room[cmd] or game[cmd]
         if f then 
             skynet.ret(skynet.pack(f(...)))
             return 

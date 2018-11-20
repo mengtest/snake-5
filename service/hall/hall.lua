@@ -227,7 +227,7 @@ function M.enterRoom(roomID, userid)
     end
 
     if M._ifInRoom(userid) then 
-        return ErrorCode.ROOM_NOT_CREATE_TEAM
+        return ErrorCode.ALREADY_IN_ROOM
     end
 
     local player = g_playerList[userid]
@@ -237,7 +237,7 @@ function M.enterRoom(roomID, userid)
         player.location  = player.location | const.LOCATION_ROOM
     end
 
-    return ret
+    return ret, roomID
 end
 
 --房间内部信息变化通知 room-->hall

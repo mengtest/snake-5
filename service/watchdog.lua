@@ -94,8 +94,6 @@ local POOL = {}
 --预构造多个agent
 function create_agent_pool(conf)
     for i=1, conf.pre_agent_num do 
-
-        --table.insert(POOL, skynet.newservice("agent"))
     end
 end
 

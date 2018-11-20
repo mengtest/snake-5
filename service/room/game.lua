@@ -7,137 +7,100 @@ local const     = require("const")
 local protopack = require("protopack")
 local skynet    = require("skynet")
 local sharemap  = require("skynet.sharemap")
+local room      = require("room")
 
-local M = {}
+local curTurnCommand       = {}   --当前回合命令
+local commandHistory       = {}   --历史命令列表
+local commandVersion       = {}   --记录各个玩家的已发送命令的版号
+local turnIndex            = 1    --整个游戏的回合数从1开始 turnIndex记录的是当前正在收集的命令的回合号
 
-function M.ctor(id, hall)
-    self._id = id
-    self._hall = hall
-    self._playerList  = {}
-    self._turnIndex = 1
+local function initNewGame()
+    curTurnCommand       = {}
+    commandHistory       = {}
+    commandVersion       = {}
+    turnIndex            = 1 
 
-    self._curTurnCommand       = {}   --当前回合命令
-    self._commandHistory       = {}   --历史命令列表
-    self._ifRecvCommand        = {}   --记录当前回合是否收到玩家命令
-
-    self._curState  =  const.STATE_FREE
+    local playrList = room.getPlayerList()
+    for k, v in pairs(playerList) do 
+        commandVersion[v.userid] = nil
+    end
 end
 
-function M.start()
-    sharemap.register("./lualib/proto/sharemap.sp")
-
-    M.smRoomInfo = sharemap.writer("roomInfo", { 
-        owner     = 12,
-        playerNum = 2,
-        capacity  = 10, 
-    })
-
-    M.smRoomInfo:commit()
-
-    return "roomInfo", writer:copy()
-end
-
---第一回合超时
-function M._overtimeFirstTurn()
-    self:_overtimeIdle()
-end
-
-function M._constructIdleCmd(userID)
-    return {userID = userID, cmdType = const.CMD_NONE, cmdValue = 0}
+--构造空数据
+local function constructIdleCmd(userID)
+    return {
+        userID = userID, 
+        cmdType = const.CMD_NONE, 
+        cmdValue = 0
+    }
 end
 
 --发送当前轮命令
-function M._sendCurTurnCommand()
-    local turnop = {
-        turnIndex = self._turnIndex,
-        turnCmd = self._curTurnCommand
+local function sendCurTurnCommand()
+    local turnCommand = {
+        turnIndex = turnIndex,
+        turnCmd   = curTurnCommand,
     }
+
+    room.broadcast("s2c_turnCommand", turnCommand)
     
-    --每个人都会发一次
-    for k, v in pairs(self._playerList) do
-        skynet.send(v.agent, "lua", "send", "s2c_turnop", turnop)
-    end
-
     --记录历史
-    table.insert(self._commandHistory, turnop)
+    table.insert(self._commandHistory, turnCommand)
 
-    self._curTurnCommand = {}
-    self._ifRecvCommand = {}
+    curTurnCommand       = {}
+    commandVersion       = {}
 end
 
---到达了触发idle的时间
-function M._overtimeIdle()
-  
-    for k, v in pairs(self._playerList) do
-        if not self._ifRecvCommand[v.id] then 
+--到达了触发idle的时间 其实也是一轮命令收集截止的时间
+local function overtimeIdle()
+    local playrList = room.getPlayerList()
+
+    for k, v in pairs(playrList) do
+        if self._commandVersion[userid] < turnIndex then 
+
+            self._commandVersion[userid] = turnIndex
+
             table.insert(self._curTurnCommand, self:_constructIdleCmd(v.id))
         end
     end
 
     self:_sendCurTurnCommand()
 
-    self._turnIndex = self._turnIndex + 1
+    turnIndex = turnIndex + 1
 
-    skynet.timeout(const.TURN_DELAY, handler(self, self._overtimeIdle))
+    skynet.timeout(const.TURN_DELAY, handler(self, overtimeIdle))
 end
 
---玩家的一回合command命令
-function M.userop(playerid, cmd)
-    if not self._playerList[playerid] then 
+local M = {}
+
+--收集玩家的命令，一回合中玩家有可能发送多条命令
+function M.userCommand(userid, cmd)
+    if not self._playerList[userid] then 
         return
     end
 
-    --插入命令
-    cmd.userID = playerid
     table.insert(self._curTurnCommand, cmd)
 
-    self._ifRecvCommand[playerid] = true
-end
-
-function M.enter(player)
-    --不是free状态不允许加入房间
-    if(self._curState ~= const.STATE_FREE) then 
-        return
-    end
-
-    if not self._playerList[player.id] then 
-        self._playerList[player.id] = player    
-    end
-end
-
-function M.leave(playerid)
-    self._playerList[playerid] = nil
+    self._commandVersion[userid] = self._turnIndex
 end
 
 function M.gameStart()
-    --skynet.error("房间游戏开始....", #self._playerList)
 
-    skynet.timeout(const.FIRST_TURN_DELAY, handler(self, self._overtimeFirstTurn))
+    initNewGame()
 
-    --构造第一回合指令
-    local turnop = {
-        turnIndex = 1,
-        turnCmd = {}
-    }
-    for k, v in pairs(self._playerList) do
-        table.insert(turnop.turnCmd, {userID = v.id, cmdType = 0, cmdValue = 0})
-    end
+    room.broadcast(
+        "s2c_startGame", 
+        {
+            retCode = ErrorCode.OK, 
+            turnTime = const.TURN_DELAY / 2 * 10
+        })
 
-    for k, v in pairs(self._playerList) do
-        --skynet.error("发送游戏开始命令")
-        turnop.turnIndex = 1
-        skynet.send(v.agent, "lua", "send", "s2c_gamestart", {
-            turnCmd = turnop,
-            turnTime = const.FIRST_TURN_DELAY * 10})
-    end
+    --立即发送第一回合的数据，玩家所有的回合的行动都是依据后端来的
+    M:_overtimeIdle()
+
+    --严格每100毫秒发送数据 第一次特殊处理：50毫秒之后发送第二回合的行动数据
+    skynet.timeout(const.TURN_DELAY / 2, handler(self, overtimeIdle))
 end
 
-function M.new(...)
-    local o = {}
-    M.__index = M
-    setmetatable(o, M)
-    o:ctor(...)
-    return o
-end
 
 return M

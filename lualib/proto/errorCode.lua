@@ -22,8 +22,11 @@ local M = {
     WRONG_PASSWORD = 17,        [17] = "密码错误",    
 
 	NONE_ROOM = 18, 	        [18] = "房间不存在",    
-	ROOM_IS_FULL = 19,  	    [19] = "房间已满员",    
+	ROOM_IS_FULL = 19,  	    [19] = "房间已满员",   
+    NOT_IN_ROOM = 20,           [20] = "没在房间中",   
 
+    --room---------------------------------------------- 
+    SEAT_HAVE_PLAYER = 21,      [21] = "座位上已有人",
 }
 
 return M

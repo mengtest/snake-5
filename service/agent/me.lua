@@ -8,7 +8,7 @@ local tabledefine = require("tabledefine")
 local dbtable = require("common.dbtable")
 
 local M = {}
-local DATA = {}
+local DATA = {}  --数据里面里的数
 
 --载入db里面的数据
 function M.loadDBData()
@@ -24,21 +24,25 @@ end
 function M.init(userid, account)
     M.userid  = userid      
     M.account = account
+    M.roomHandle = false    --存储所在房间
 
     M.loadDBData()
 end
 
 --获取数据 key是A.B.C.D结构，表示从从A到D按顺序查找key的value
 function M.query(key)
+    print("start query:" .. key)
     assert(type(key) == "string", "key is not string in query function!")
 
     local data = DATA
     local list = split(key, ".")
 
     for _,v in ipairs(list) do 
+        print(data[v], v)
         data = data[v]
-        assert(data, "data is nil in query, when key is: ", v)
+        assert(data, "data is nil in query, when key is: " .. v)
     end
+    print("end query", data)
 
     return data
 end
@@ -53,9 +57,10 @@ function M.update(key, value)
 
     for _,v in ipairs(list) do 
         data = data[v]
-        assert(data, "data is nil in query, when key is: ", v)
+        assert(data, "data is nil in query, when key is: " .. v)
     end
 
+    assert(type(data[lastKey]) == type(value), "error, type is diffrent") 
     data[lastKey] = value
 end
 
@@ -89,6 +94,14 @@ end
 
 function M.getUserID()
     return M.userid
+end
+
+function M.getRoomHandle()
+    return M.roomHandle
+end
+
+function M.setRoomHandle(handle)
+    M.roomHandle = handle
 end
 
 return M
