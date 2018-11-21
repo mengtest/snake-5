@@ -56,14 +56,6 @@ local function judgeNewOwner()
     return owner.userid
 end
 
-local function broadcast(name, msg, exclude)
-    for k,v in pairs(playerList) do 
-        if (not exclude) or (not table.indexof(exclude, v.userid)) then 
-            skynet.send(v.handle, "lua", "send", name, msg)   
-        end
-    end
-end
-
 local function packPlayerInfo(player) 
     return {
         userID    = player.userid,
@@ -72,6 +64,14 @@ local function packPlayerInfo(player)
         loseCount = player.loseCount,
         position  = player.seat,
     }
+end
+
+function M.broadcast(name, msg, exclude)
+    for k,v in pairs(playerList) do 
+        if (not exclude) or (not table.indexof(exclude, v.userid)) then 
+            skynet.send(v.handle, "lua", "send", name, msg)   
+        end
+    end
 end
 
 function M.start()
@@ -111,7 +111,7 @@ function M.enter(player)
     player.winCount  = skynet.call(player.handle, "lua", "queryData", "gameinfo.wincount")
     player.loseCount = skynet.call(player.handle, "lua", "queryData", "gameinfo.losecount")
     
-    broadcast("s2c_playerJoinRoom", {playerinfo = packPlayerInfo(player)}, {player.userid})
+    M.broadcast("s2c_playerJoinRoom", {playerinfo = packPlayerInfo(player)}, {player.userid})
 
     return ErrorCode.OK
 end
@@ -167,13 +167,17 @@ function M.changeSeat(userid, targetSeat)
     player.seat = targetSeat
     seatList[targetSeat] = player
 
-    broadcast("s2c_changeSeat", msg)
+    M.broadcast("s2c_changeSeat", msg)
 
     return ErrorCode.OK
 end
 
 function M.getPlayerList()
     return playerList
+end
+
+function M.getOwner()
+    return smRoomInfo.owner
 end
 
 --玩家断线 hall --> room

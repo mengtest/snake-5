@@ -58,4 +58,7 @@ M.s2c_turnCommand = 208
 M.c2s_changeSeat = 209
 M.s2c_changeSeat = 210
 
+M.c2s_loadComplete = 211
+M.s2c_launch       = 212
+
 return M

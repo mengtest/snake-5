@@ -74,11 +74,10 @@ function M.c2s_createRoom()
 end
 
 function M.c2s_enterRoom(msg)
-    print("尝试进入房间")
     local ret, roomID = skynet.call("hall", "lua", "enterRoom", msg.roomID, g_me.getUserID())    
 
     if ret == ErrorCode.OK then 
-        print("设置进入房间", roomID)
+    
         g_me.setRoomHandle(roomID)
 
         g_send("s2c_enterRoom", {retCode = ret, roomId = roomID}) 

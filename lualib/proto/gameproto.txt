@@ -171,13 +171,21 @@
     targetSeat 2: integer
 }
 
-.c2s_startGame {  #通知开始游戏
+.c2s_startGame {     #通知开始游戏
     
 }
 
-.s2c_startGame {    #通知游戏开始
+.s2c_startGame {    
     retCode  0:    integer
     turnTime 1:    integer          #一回合的毫秒数 
+}
+
+.c2s_loadComplete {  #报告载入完成
+    
+}
+
+.s2c_launch {        #发射
+    
 }
 
 .c2s_userCommand {
@@ -186,8 +194,7 @@
 }
 
 .s2c_turnCommand {  #一回合的玩家操作数据,必定包含有所有玩家的操作
-    turnIndex  0: integer
-    turnCmd    1: *c2s_userCommand
+    turnCmd    0: *c2s_userCommand
 }
 
 .pingAsk {          #ping测试请求

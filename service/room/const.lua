@@ -11,8 +11,7 @@ M.INVIAL_OWNER  = -1  --没有房主
 M.STATE_FREE    = 1   --自由状态
 M.STATE_GAMING  = 2   --游戏状态
 
-M.TURN_DELAY       = 10  --回合时长100毫秒
-M.FIRST_TURN_DELAY = 5   --第一个回合触发idle 时长50毫秒
+M.TURN_DELAY    = 6   --回合时长100毫秒
 
 M.DIR_UP    = 1
 M.DIR_DOWN  = 2

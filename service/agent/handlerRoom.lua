@@ -32,10 +32,40 @@ function M.c2s_changeSeat(msg)
     end
 end
 
-function M.c2s_userop(msg)
-    local room = g_me:getRoom()
-    if not room then return end
-    skynet.call(room, "lua", "userop", g_me.getUserID(), msg)
+function M.c2s_startGame(msg)
+    local room = g_me.getRoomHandle()
+
+    if not room then 
+        g_send("s2c_startGame", {retCode = ErrorCode.NOT_IN_ROOM})
+    else 
+        local ret = skynet.call(g_me.getRoomHandle(), "lua", "gameStart", g_me.getUserID())   
+
+        if ret ~= ErrorCode.OK then 
+            g_send("s2c_startGame", {retCode = ret})   
+        end
+    end
+end
+
+function M.c2s_loadComplete(msg)
+    local room = g_me.getRoomHandle()
+
+    if not room then 
+        return
+    else 
+        skynet.send(room, "lua", "loadComplete", g_me.getUserID())
+    end    
+end
+
+function M.c2s_userCommand(msg)
+    local room = g_me.getRoomHandle()
+
+    if not room then 
+        return
+    else 
+        msg.userID = g_me.getUserID()
+
+        skynet.send(room, "lua", "userCommand", msg)
+    end    
 end
 
 function M.pingAsk(msg)
