@@ -5,8 +5,10 @@
 require("common.init")
 local skynet = require("skynet")
 local room = require("room")
-local game = require("gametcp")
---local game = require("gameudp")
+--local game = require("gametcp")
+--local game = require("yflockstep")
+local game = require("answerlockstep")
+
 
 skynet.start(function()
     skynet.dispatch("lua", function(_, _, cmd, ...)
