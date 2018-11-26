@@ -52,7 +52,6 @@ function M.c2s_leaveTeam()
     end
 end
 
-
 --房间---------------------------------------------------
 function M.c2s_listRoom()
     local ret, size =  skynet.call("hall", "lua", "listRoom")

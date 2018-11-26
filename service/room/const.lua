@@ -11,7 +11,7 @@ M.INVIAL_OWNER  = -1  --没有房主
 M.STATE_FREE    = 1   --自由状态
 M.STATE_GAMING  = 2   --游戏状态
 
-M.TURN_DELAY    = 6   --回合时长100毫秒
+M.TURN_DELAY    = 3   --回合时长100毫秒
 
 M.DIR_UP    = 1
 M.DIR_DOWN  = 2

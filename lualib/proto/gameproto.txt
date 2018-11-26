@@ -189,20 +189,19 @@
 }
 
 .c2s_userCommand {   #玩家命令
-    cmd       0: *integer
-    turnIndex 1: integer
+    cmd       0: integer
     userID    2: integer
 }
 
 .s2c_turnCommand {    #一回合的玩家操作数据,必定包含有所有玩家的操作
-    #turnCmd    0: *c2s_userCommand
-    userCmd    0: c2s_userCommand
+    turnCmd    0: *c2s_userCommand
+    turnIndex  1: integer
 }
 
-.pingAsk {          #ping测试请求
+.pingAsk {            #ping测试请求
     index 0: integer
 }
 
-.pingAck {          #ping测试回应
+.pingAck {            #ping测试回应
     index 0: integer
 }

@@ -5,9 +5,9 @@
 require("common.init")
 local skynet = require("skynet")
 local room = require("room")
---local game = require("gametcp")
+local game = require("gametcp")
 --local game = require("yflockstep")
-local game = require("answerlockstep")
+--local game = require("answerlockstep")
 
 
 skynet.start(function()

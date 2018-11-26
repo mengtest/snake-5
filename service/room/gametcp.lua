@@ -11,6 +11,7 @@ local curTurnCommand       = {}   --当前回合命令
 local commandHistory       = {}   --历史命令列表
 local playerList           = nil
 local playerWaitReady      = {}
+local turnIndex            = 0
 
 local function initNewGame()
     curTurnCommand       = {}
@@ -31,8 +32,7 @@ local function overtimeIdle()
     })
     
     --记录历史
-    table.insert(commandHistory, turnCommand)
-
+    table.insert(commandHistory, curTurnCommand)
     curTurnCommand       = {}
 
     skynet.timeout(const.TURN_DELAY, handler(self, overtimeIdle))
@@ -68,15 +68,14 @@ function M.loadComplete(userid)
     playerWaitReady[userid] = nil
 
     for k, v in pairs(playerWaitReady) do 
-        print(k, v)
         return 
     end
-
-    print("没有玩家没准备")
 
     room.broadcast(  --广播游戏开始，客户端收到s2c_startGame消息后，开始整局游戏。
         "s2c_launch", 
         {})
+
+    turnIndex = 2    --开始收集第二回合的数据
 
     --严格每TURN_DELAY毫秒发送数据
     skynet.timeout(const.TURN_DELAY, handler(self, overtimeIdle))
