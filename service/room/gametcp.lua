@@ -34,6 +34,7 @@ local function overtimeIdle()
     --记录历史
     table.insert(commandHistory, curTurnCommand)
     curTurnCommand       = {}
+    turnIndex = turnIndex + 1
 
     skynet.timeout(const.TURN_DELAY, handler(self, overtimeIdle))
 end
@@ -45,15 +46,6 @@ function M.userCommand(cmd)
     if playerList[cmd.userID] then 
         table.insert(curTurnCommand, cmd)    
     end
-
-    room.broadcast("s2c_turnCommand", {
-        turnIndex = turnIndex,
-        turnCmd   = curTurnCommand,
-    })
-    
-    --记录历史
-    table.insert(commandHistory, curTurnCommand)
-    curTurnCommand       = {}
 end
 
 function M.gameStart(userid)
