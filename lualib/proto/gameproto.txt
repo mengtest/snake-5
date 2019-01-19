@@ -189,8 +189,10 @@
 }
 
 .c2s_userCommand {   #玩家命令
-    cmd       0: integer
-    userID    2: integer
+	cmdType   0: integer
+    x         1: integer
+	y         2: integer
+    userID    3: integer
 }
 
 .s2c_turnCommand {    #一回合的玩家操作数据,必定包含有所有玩家的操作

@@ -67,7 +67,7 @@ function M.select (tablename, condition)
     print(cmd)
 
     assert(not ret.badresult)
-
+ 
     return ret[1]
 end
 
